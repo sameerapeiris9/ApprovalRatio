@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Glass Dashboard</title>
+    <style>
+        /* =========================================
+           1. RIGID LAYOUT ENGINE (NO RESPONSIVENESS)
+           ========================================= */
+        body {
+            margin: 0;
+            padding: 40px 0; /* Vertical padding only */
+            
+            /* FORCE HORIZONTAL SCROLLBAR IF WINDOW IS TOO SMALL */
+            min-width: 1440px; 
+            overflow-x: auto; 
+            
+            /* "DEEP SPACE" BACKGROUND */
+            background-color: #0a0a16; /* Deep navy base */
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(99, 102, 241, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 95% 85%, rgba(168, 85, 247, 0.2) 0%, transparent 40%),
+                linear-gradient(45deg, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                linear-gradient(-45deg, rgba(244, 114, 182, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            position: relative;
+            overflow-y: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            /* STICT FIXED WIDTH - WILL NOT CHANGE SIZE */
+            width: 1400px; 
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* =========================================
+           2. FIXED ROW SYSTEM
+           ========================================= */
+        .row {
+            display: flex;
+            width: 100%;
+            gap: 20px; /* Fixed gap between cards */
+        }
+
+        /* CALCULATED FIXED PIXEL WIDTHS 
+           Based on 1400px Container & 20px Gaps 
+        */
+
+        /* 16% (6 cards per row) -> ~216px each */
+        .w-16 {
+            width: 216px;
+            flex-shrink: 0; /* PREVENT SHRINKING */
+        }
+
+        /* 25% (4 cards per row) -> 335px each */
+        .w-25 {
+            width: 335px;
+            flex-shrink: 0;
+        }
+
+        /* 33% (3 cards per row) -> ~453px each */
+        .w-33 {
+            width: 453px;
+            flex-shrink: 0;
+        }
+
+        /* 40% (Used in mixed layouts) -> 548px */
+        .w-40 {
+            width: 548px;
+            flex-shrink: 0;
+        }
+
+        /* Auto fill (Used for the remainder in mixed rows) */
+        .w-fill {
+            flex-grow: 1;
+        }
+
+        /* =========================================
+           3. FIXED HEIGHTS
+           ========================================= */
+        .h-sm { height: 180px; }
+        .h-md { height: 270px; }
+        .h-lg { height: 450px; }
+
+        /* =========================================
+           4. ENHANCED GLASS STYLING
+           ========================================= */
+        .glass-card {
+            position: relative;
+            background: rgba(20, 20, 40, 0.2); /* Darker glass base */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            
+            /* Enhanced 3D Borders */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-left: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            
+            border-radius: 16px;
+            overflow: hidden;
+            
+            /* Physics Animation - NO SHAPE CHANGE, NO MOVEMENT */
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Hover Interaction - NO TRANSFORM, NO SHAPE CHANGE */
+        .glass-card:hover {
+            background: rgba(30, 30, 60, 0.3);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* Gloss Sheen Animation - ONLY VISUAL EFFECT */
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+            pointer-events: none;
+        }
+
+        .glass-card:hover::after {
+            left: 150%;
+            transition: 0.7s ease-in-out;
+        }
+
+        /* Card content */
+        .card-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        /* =========================================
+           5. TEXT ICON STYLES - TOP LEFT, SMALLER
+           ========================================= */
+        .text-icon-container {
+            position: absolute;
+            top: 12px; /* Moved to top left */
+            left: 12px; /* Moved to top left */
+            min-width: 60px; /* SMALLER SIZE */
+            height: 36px; /* SMALLER SIZE */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px; /* Slightly smaller radius */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 3;
+            padding: 0 12px; /* Smaller padding */
+        }
+
+        .text-icon {
+            color: white;
+            font-size: 12px; /* SMALLER FONT */
+            font-weight: 600;
+            letter-spacing: 0.8px; /* Slightly less spacing */
+            text-transform: uppercase;
+        }
+
+        /* Specific icon styles */
+        .icon-atm {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            animation: glow 2s infinite alternate;
+        }
+
+        .icon-pos {
+            background: linear-gradient(45deg, #10b981, #0ea5e9);
+            animation: glow 2s infinite alternate 0.3s;
+        }
+
+        .icon-ecom {
+            background: linear-gradient(45deg, #ec4899, #f59e0b);
+            animation: glow 2s infinite alternate 0.6s;
+        }
+
+        /* =========================================
+           6. STANDARD ICONS - TOP LEFT, SMALLER
+           ========================================= */
+        .icon-container {
+            position: absolute;
+            top: 12px; /* Moved to top left */
+            left: 12px; /* Moved to top left */
+            width: 36px; /* SMALLER SIZE */
+            height: 36px; /* SMALLER SIZE */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px; /* Slightly smaller radius */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 3;
+        }
+
+        /* Standard icon styles - SMALLER */
+        .icon {
+            position: relative;
+            width: 20px; /* SMALLER */
+            height: 20px; /* SMALLER */
+        }
+
+        /* CPU Icon Animation - SMALLER */
+        .icon-cpu {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        .icon-cpu::before,
+        .icon-cpu::after {
+            content: '';
+            position: absolute;
+            width: 4px; /* SMALLER */
+            height: 4px; /* SMALLER */
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .icon-cpu::before {
+            top: -2px;
+            left: -2px;
+        }
+
+        .icon-cpu::after {
+            bottom: -2px;
+            right: -2px;
+        }
+
+        /* Chart Icon Animation - SMALLER */
+        .icon-chart {
+            position: relative;
+        }
+
+        .icon-chart::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 4px; /* SMALLER */
+            height: 8px; /* SMALLER */
+            background: #10b981;
+            border-radius: 1px;
+            animation: barGrow1 2s infinite;
+        }
+
+        .icon-chart::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 7px; /* Adjusted for smaller size */
+            width: 4px; /* SMALLER */
+            height: 12px; /* SMALLER */
+            background: #8b5cf6;
+            border-radius: 1px;
+            animation: barGrow2 2s infinite 0.2s;
+        }
+
+        /* Database Icon Animation - SMALLER */
+        .icon-database {
+            position: relative;
+            width: 18px; /* SMALLER */
+            height: 18px; /* SMALLER */
+            background: linear-gradient(45deg, #ef4444, #f97316);
+            border-radius: 50%;
+            animation: rotate 4s infinite linear;
+        }
+
+        .icon-database::before {
+            content: '';
+            position: absolute;
+            top: 4px; /* Adjusted for smaller size */
+            left: 4px; /* Adjusted for smaller size */
+            right: 4px; /* Adjusted for smaller size */
+            bottom: 4px; /* Adjusted for smaller size */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Thinner border */
+            border-radius: 50%;
+            animation: rotateReverse 4s infinite linear;
+        }
+
+        /* Network Icon Animation - SMALLER */
+        .icon-network {
+            position: relative;
+        }
+
+        .icon-network::before,
+        .icon-network::after {
+            content: '';
+            position: absolute;
+            border: 1px solid #06b6d4; /* Thinner border */
+            border-radius: 50%;
+            animation: ripple 2s infinite;
+        }
+
+        .icon-network::before {
+            width: 14px; /* SMALLER */
+            height: 14px; /* SMALLER */
+        }
+
+        .icon-network::after {
+            width: 22px; /* SMALLER */
+            height: 22px; /* SMALLER */
+            animation-delay: 0.5s;
+        }
+
+        /* =========================================
+           7. ANIMATIONS
+           ========================================= */
+        @keyframes glow {
+            0% { 
+                box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+                opacity: 0.9;
+            }
+            100% { 
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.3);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes barGrow1 {
+            0%, 100% { height: 8px; }
+            50% { height: 14px; }
+        }
+
+        @keyframes barGrow2 {
+            0%, 100% { height: 12px; }
+            50% { height: 20px; }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Row 1: Small Cards with Text Icons -->
+        <div class="row">
+            <!-- ATM Card -->
+            <div class="glass-card w-16 h-md">
+                <div class="card-content">
+                    <div class="text-icon-container icon-atm">
+                        <span class="text-icon">ATM</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- POS Card -->
+            <div class="glass-card w-16 h-md">
+                <div class="card-content">
+                    <div class="text-icon-container icon-pos">
+                        <span class="text-icon">POS</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- E-COM Card -->
+            <div class="glass-card w-16 h-md">
+                <div class="card-content">
+                    <div class="text-icon-container icon-ecom">
+                        <span class="text-icon">E-COM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CPU Card -->
+            <div class="glass-card w-25 h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-cpu"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Card -->
+            <div class="glass-card w-25 h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-chart"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Database Card -->
+            <div class="glass-card w-fill h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-database"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Medium Cards -->
+        <div class="row">
+            <!-- CPU Card -->
+            <div class="glass-card w-25 h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-cpu"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Card -->
+            <div class="glass-card w-25 h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-chart"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Database Card -->
+            <div class="glass-card w-25 h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-database"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Network Card -->
+            <div class="glass-card w-fill h-md">
+                <div class="card-content">
+                    <div class="icon-container">
+                        <div class="icon icon-network"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = 15 + Math.random() * 10;
+                
+                particle.style.left = `${left}%`;
+                particle.style.top = `${top}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Random size
+                const size = 1 + Math.random() * 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random opacity
+                particle.style.opacity = 0.3 + Math.random() * 0.4;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize particles when page loads
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+</body>
+</html>
